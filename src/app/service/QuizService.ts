@@ -1,6 +1,6 @@
 import Quiz, { IQuiz } from "../models/Quiz";
 
-export class QuizService {
+class QuizService {
   public async getAll() {
     return Quiz.find({});
   }
@@ -13,3 +13,5 @@ export class QuizService {
     return Quiz.create(quiz);
   }
 }
+
+export default new QuizService();
