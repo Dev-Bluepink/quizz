@@ -42,7 +42,7 @@ const router = Router();
 
 /**
  * @swagger
- * /select-questions/{id}:
+ * /quiz/select-questions/{id}:
  *   get:
  *     summary: Lấy câu hỏi theo ID bài kiểm tra
  *     tags: [Quiz]
@@ -82,7 +82,7 @@ router.get("/select-questions/:id", QuizController.getQuestionsByQuizId);
 
 /**
  * @swagger
- * /submit/{id}:
+ * /quiz/submit/{id}:
  *   post:
  *     summary: Nộp bài kiểm tra
  *     tags: [Quiz]
@@ -126,15 +126,42 @@ router.get("/select-questions/:id", QuizController.getQuestionsByQuizId);
  *                   description: Điểm số tối đa
  *       400:
  *         description: Dữ liệu không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mô tả lỗi
  *       404:
  *         description: Không tìm thấy bài kiểm tra
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mô tả lỗi
  *       500:
  *         description: Lỗi máy chủ nội bộ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mô tả lỗi
+ *                 error:
+ *                   type: string
+ *                   description: Chi tiết lỗi
  */
 router.post("/submit/:id", QuizController.submitQuiz);
 /**
  * @swagger
- * /get-all:
+ * /quiz/get-all:
  *   get:
  *     summary: Lấy tất cả các bài kiểm tra
  *     tags: [Quiz]
@@ -151,7 +178,7 @@ router.post("/submit/:id", QuizController.submitQuiz);
 router.get("/get-all", QuizController.getAllQuizzes);
 /**
  * @swagger
- * /detail/{id}:
+ * /quiz/detail/{id}:
  *   get:
  *     summary: Lấy chi tiết bài kiểm tra
  *     tags: [Quiz]
@@ -175,7 +202,7 @@ router.get("/get-all", QuizController.getAllQuizzes);
 router.get("/detail/:id", QuizController.getQuizById);
 /**
  * @swagger
- * /create:
+ * /quiz/create:
  *   post:
  *     summary: Tạo một bài kiểm tra mới
  *     tags: [Quiz]

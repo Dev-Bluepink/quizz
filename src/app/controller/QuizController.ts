@@ -15,17 +15,19 @@ class QuizController {
     return res.json(quiz);
   }
   async getQuestionsByQuizId(req: Request, res: Response) {
-    console.log(req.query);
     const numOfQuestions = parseInt(req.query.numOfQuestions as string);
     const quiz = await QuizService.getById(req.params.id);
     const questions = quiz?.questions;
     if (!questions || questions.length === 0) {
       return res.status(404).json({ message: "No questions found" });
     }
-    const shuffledQuestions = questions.sort(() => 0.5 - Math.random());
+    const shuffledQuestions = questions
+      .map((question) => ({ question, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ question }) => question);
     const selectedQuestions = shuffledQuestions.slice(0, numOfQuestions);
     const selectedQuestionIndexes = selectedQuestions.map((question) =>
-      questions.indexOf(question)
+      quiz.questions.findIndex((q) => q.questionText === question.questionText)
     );
     return res.json({ selectedQuestions, selectedQuestionIndexes });
   }
@@ -33,7 +35,6 @@ class QuizController {
     try {
       const { id } = req.params;
       const { questionIndex, selectedOption } = req.body;
-      console.log(req.body);
       if (!Array.isArray(questionIndex) || !Array.isArray(selectedOption)) {
         return res.status(400).json({ message: "Invalid input format" });
       }
