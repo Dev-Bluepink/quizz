@@ -1,35 +1,72 @@
 import QuizService from "../service/QuizService";
 import { Request, Response } from "express";
+import CustomError from "../utils/customError";
 
 class QuizController {
   async getAllQuizzes(req: Request, res: Response) {
-    const quizzes = await QuizService.getAll();
-    return res.json(quizzes);
+    try {
+      const quizzes = await QuizService.getAll();
+      return res.json(quizzes);
+    } catch (error) {
+      if (error instanceof CustomError) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "Internal server error", error });
+    }
   }
   async getQuizById(req: Request, res: Response) {
-    const quiz = await QuizService.getById(req.params.id);
-    return res.json(quiz);
+    try {
+      const quiz = await QuizService.getById(req.params.id);
+      if (!quiz) {
+        throw new CustomError(204, "Quiz not found");
+      }
+      return res.json(quiz);
+    } catch (error) {
+      if (error instanceof CustomError) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "Internal server error", error });
+    }
   }
   async createQuiz(req: Request, res: Response) {
-    const quiz = await QuizService.create(req.body);
-    return res.json(quiz);
+    try {
+      const quiz = await QuizService.create(req.body);
+      return res.json(quiz);
+    } catch (error) {
+      if (error instanceof CustomError) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "Internal server error", error });
+    }
   }
   async getQuestionsByQuizId(req: Request, res: Response) {
-    const numOfQuestions = parseInt(req.query.numOfQuestions as string);
-    const quiz = await QuizService.getById(req.params.id);
-    const questions = quiz?.questions;
-    if (!questions || questions.length === 0) {
-      return res.status(404).json({ message: "No questions found" });
+    try {
+      if (!req.params.id) {
+        throw new CustomError(400, "Invalid ID");
+      }
+      const numOfQuestions = parseInt(req.query.numOfQuestions as string);
+      const quiz = await QuizService.getById(req.params.id);
+      const questions = quiz?.questions;
+      if (!questions || questions.length === 0) {
+        return res.status(404).json({ message: "No questions found" });
+      }
+      const shuffledQuestions = questions
+        .map((question) => ({ question, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ question }) => question);
+      const selectedQuestions = shuffledQuestions.slice(0, numOfQuestions);
+      const selectedQuestionIndexes = selectedQuestions.map((question) =>
+        quiz.questions.findIndex(
+          (q) => q.questionText === question.questionText
+        )
+      );
+      return res.json({ selectedQuestions, selectedQuestionIndexes });
+    } catch (error) {
+      if (error instanceof CustomError) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "Internal server error", error });
     }
-    const shuffledQuestions = questions
-      .map((question) => ({ question, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ question }) => question);
-    const selectedQuestions = shuffledQuestions.slice(0, numOfQuestions);
-    const selectedQuestionIndexes = selectedQuestions.map((question) =>
-      quiz.questions.findIndex((q) => q.questionText === question.questionText)
-    );
-    return res.json({ selectedQuestions, selectedQuestionIndexes });
   }
   async submitQuiz(req: Request, res: Response) {
     try {
