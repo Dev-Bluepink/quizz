@@ -1,6 +1,6 @@
 import QuizService from "../service/QuizService";
 import { Request, Response } from "express";
-import CustomError from "../utils/customError";
+import CustomError from "../utils/CustomError";
 
 class QuizController {
   async getAllQuizzes(req: Request, res: Response) {
